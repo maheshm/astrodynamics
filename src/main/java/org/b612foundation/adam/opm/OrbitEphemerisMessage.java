@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Orbit Parameter Message, or OPM, one of the three high-level message types defined in CCSDS ODM standard.
@@ -39,6 +40,28 @@ public class OrbitEphemerisMessage implements Serializable {
     this.data.add(block);
   }
 
+  public boolean isDataPresent(String epoch) {
+    Optional<OemMetadata> filteredMetadata = data.stream()
+      .map(d -> d.getMetadata())
+      .filter(metadata -> isEpochInBetweenUsableEpochs(epoch, metadata.getUsable_start_time(), metadata.getUsable_stop_time()))
+      .findAny();
+    return filteredMetadata.isPresent() ? true : false;
+  }
+
+  public OrbitParameterMessage getAssociatedOpm(String epoch) {
+    boolean isUsableDataPresent = isDataPresent(epoch);
+
+    if(!isUsableDataPresent) { return null; }
+
+    //This could be further optimized to reuse it from above function
+    Optional<OemMetadata> filteredMetadata = data.stream()
+      .map(d -> d.getMetadata())
+      .filter(metadata -> isEpochInBetweenUsableEpochs(epoch, metadata.getUsable_start_time(), metadata.getUsable_stop_time()))
+      .findFirst();
+
+    return filteredMetadata.get().getOpm();
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(ccsdsOemVers, header, data);
@@ -55,5 +78,10 @@ public class OrbitEphemerisMessage implements Serializable {
     OrbitEphemerisMessage other = (OrbitEphemerisMessage) obj;
     return Objects.equals(ccsdsOemVers, other.ccsdsOemVers) && Objects.equals(header, other.header)
         && Objects.equals(data, other.data);
+  }
+
+  private boolean isEpochInBetweenUsableEpochs(String epoch, String startTime, String stopTime) {
+    //Implement logic of comparison here
+    return false;
   }
 }
