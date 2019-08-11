@@ -16,6 +16,8 @@ public class OemMetadata extends OdmCommonMetadata {
   private String interpolation = null;
   /** Interpolation degree, optional. */
   private int interpolationDegree = 0;
+  /** Original OPM Data. Required. */
+  private OrbitParameterMessage opm = null;
 
   public String getStart_time() {
     return startTime;
@@ -65,6 +67,15 @@ public class OemMetadata extends OdmCommonMetadata {
     this.interpolationDegree = interpolationDegree;
   }
 
+  public void setOpm(OrbitParameterMessage opm) {
+    this.opm = opm;
+    // This may be further used to set first dataline in the parent datablock of this metadata.
+  }
+
+  public OrbitParameterMessage getOpm() {
+    return opm;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), startTime, stopTime, usableStartTime, usableStopTime, interpolation,
@@ -81,13 +92,14 @@ public class OemMetadata extends OdmCommonMetadata {
       return false;
     OemMetadata other = (OemMetadata) obj;
     // @formatter:off
-    return super.equals(other) 
+    return super.equals(other)
         && Objects.equals(startTime, other.startTime)
         && Objects.equals(stopTime, other.stopTime)
         && Objects.equals(usableStartTime, other.usableStartTime)
         && Objects.equals(usableStopTime, other.usableStopTime)
         && Objects.equals(interpolation, other.interpolation)
-        && Objects.equals(interpolationDegree, other.interpolationDegree);
+        && Objects.equals(interpolationDegree, other.interpolationDegree)
+        && Objects.equals(opm, other.opm);
     // @formatter:on
   }
 }
