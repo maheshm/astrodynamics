@@ -48,6 +48,20 @@ public class OrbitEphemerisMessage implements Serializable {
     return filteredMetadata.isPresent() ? true : false;
   }
 
+  public OrbitParameterMessage getAssociatedOpm(String epoch) {
+    boolean isUsableDataPresent = isDataPresent(epoch);
+
+    if(!isUsableDataPresent) { return null; }
+
+    //This could be further optimized to reuse it from above function
+    Optional<OemMetadata> filteredMetadata = data.stream()
+      .map(d -> d.getMetadata())
+      .filter(metadata -> isEpochInBetweenUsableEpochs(epoch, metadata.getUsable_start_time(), metadata.getUsable_stop_time()))
+      .findFirst();
+
+    return filteredMetadata.get().getOpm();
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(ccsdsOemVers, header, data);
